@@ -1,3 +1,3 @@
 module rajatgoel/gh-go
 
-go 1.20
+go 1.19
