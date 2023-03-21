@@ -1,7 +1,5 @@
 name: build
 
-permissions: {} # no need any permissions
-
 on:
   push:
     branches: [main]

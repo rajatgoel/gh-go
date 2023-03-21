@@ -1,7 +1,5 @@
 name: lint
 
-permissions: {} # no need any permissions
-
 on:
   push:
     branches: [main]
