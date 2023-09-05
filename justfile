@@ -1,11 +1,13 @@
 setup:
-        brew install bufbuild/buf/buf 
+        brew install go bufbuild/buf/buf golangci-lint
 
 gen:
         buf generate proto
 
-lint:
+lint: gen
         buf lint proto
+        golangci-lint run ./...
 
-test: gen
+test: lint
+        go vet ./...
         go test ./...
