@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package frontend.v1;
+
+import "google/protobuf/empty.proto";
+
+service FrontendService {
+        rpc Stub(google.protobuf.Empty) returns (google.protobuf.Empty);
+}
