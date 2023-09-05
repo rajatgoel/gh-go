@@ -7,5 +7,5 @@ gen:
 lint:
         buf lint proto
 
-test:
+test: gen
         go test ./...
