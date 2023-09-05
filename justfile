@@ -3,3 +3,9 @@ setup:
 
 gen:
         buf generate proto
+
+lint:
+        buf lint proto
+
+test:
+        go test ./...

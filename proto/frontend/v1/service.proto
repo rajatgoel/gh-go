@@ -2,8 +2,12 @@ syntax = "proto3";
 
 package frontend.v1;
 
-import "google/protobuf/empty.proto";
+message StubRequest {
+}
+
+message StubResponse {
+}
 
 service FrontendService {
-        rpc Stub(google.protobuf.Empty) returns (google.protobuf.Empty);
+        rpc Stub(StubRequest) returns (StubResponse);
 }
