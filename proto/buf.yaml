@@ -2,6 +2,8 @@ version: v1
 breaking:
   use:
     - FILE
+  ignore:
+    - proto/frontend/v1/service.proto
 lint:
   use:
     - DEFAULT
