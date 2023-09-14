@@ -4,6 +4,7 @@ setup:
 gen:
         buf generate proto
         cd internal/sqlbackend && sqlc generate
+        gofmt -s -w .
 
 lint: gen
         buf lint proto
