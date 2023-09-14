@@ -2,12 +2,23 @@ syntax = "proto3";
 
 package frontend.v1;
 
-message StubRequest {
+message PutRequest {
+        int64 key = 1;
+        string value = 2;
 }
 
-message StubResponse {
+message PutResponse {
+}
+
+message GetRequest {
+        int64 key = 1;
+}
+
+message GetResponse {
+        string value = 1;
 }
 
 service FrontendService {
-        rpc Stub(StubRequest) returns (StubResponse);
+        rpc Put(PutRequest) returns (PutResponse);
+        rpc Get(GetRequest) returns (GetResponse);
 }

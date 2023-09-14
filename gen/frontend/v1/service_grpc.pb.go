@@ -19,14 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	FrontendService_Stub_FullMethodName = "/frontend.v1.FrontendService/Stub"
+	FrontendService_Put_FullMethodName = "/frontend.v1.FrontendService/Put"
+	FrontendService_Get_FullMethodName = "/frontend.v1.FrontendService/Get"
 )
 
 // FrontendServiceClient is the client API for FrontendService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FrontendServiceClient interface {
-	Stub(ctx context.Context, in *StubRequest, opts ...grpc.CallOption) (*StubResponse, error)
+	Put(ctx context.Context, in *PutRequest, opts ...grpc.CallOption) (*PutResponse, error)
+	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetResponse, error)
 }
 
 type frontendServiceClient struct {
@@ -37,9 +39,18 @@ func NewFrontendServiceClient(cc grpc.ClientConnInterface) FrontendServiceClient
 	return &frontendServiceClient{cc}
 }
 
-func (c *frontendServiceClient) Stub(ctx context.Context, in *StubRequest, opts ...grpc.CallOption) (*StubResponse, error) {
-	out := new(StubResponse)
-	err := c.cc.Invoke(ctx, FrontendService_Stub_FullMethodName, in, out, opts...)
+func (c *frontendServiceClient) Put(ctx context.Context, in *PutRequest, opts ...grpc.CallOption) (*PutResponse, error) {
+	out := new(PutResponse)
+	err := c.cc.Invoke(ctx, FrontendService_Put_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *frontendServiceClient) Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetResponse, error) {
+	out := new(GetResponse)
+	err := c.cc.Invoke(ctx, FrontendService_Get_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +61,8 @@ func (c *frontendServiceClient) Stub(ctx context.Context, in *StubRequest, opts 
 // All implementations must embed UnimplementedFrontendServiceServer
 // for forward compatibility
 type FrontendServiceServer interface {
-	Stub(context.Context, *StubRequest) (*StubResponse, error)
+	Put(context.Context, *PutRequest) (*PutResponse, error)
+	Get(context.Context, *GetRequest) (*GetResponse, error)
 	mustEmbedUnimplementedFrontendServiceServer()
 }
 
@@ -58,8 +70,11 @@ type FrontendServiceServer interface {
 type UnimplementedFrontendServiceServer struct {
 }
 
-func (UnimplementedFrontendServiceServer) Stub(context.Context, *StubRequest) (*StubResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Stub not implemented")
+func (UnimplementedFrontendServiceServer) Put(context.Context, *PutRequest) (*PutResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Put not implemented")
+}
+func (UnimplementedFrontendServiceServer) Get(context.Context, *GetRequest) (*GetResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
 func (UnimplementedFrontendServiceServer) mustEmbedUnimplementedFrontendServiceServer() {}
 
@@ -74,20 +89,38 @@ func RegisterFrontendServiceServer(s grpc.ServiceRegistrar, srv FrontendServiceS
 	s.RegisterService(&FrontendService_ServiceDesc, srv)
 }
 
-func _FrontendService_Stub_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(StubRequest)
+func _FrontendService_Put_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PutRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(FrontendServiceServer).Stub(ctx, in)
+		return srv.(FrontendServiceServer).Put(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: FrontendService_Stub_FullMethodName,
+		FullMethod: FrontendService_Put_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FrontendServiceServer).Stub(ctx, req.(*StubRequest))
+		return srv.(FrontendServiceServer).Put(ctx, req.(*PutRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _FrontendService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FrontendServiceServer).Get(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: FrontendService_Get_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FrontendServiceServer).Get(ctx, req.(*GetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -100,8 +133,12 @@ var FrontendService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*FrontendServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Stub",
-			Handler:    _FrontendService_Stub_Handler,
+			MethodName: "Put",
+			Handler:    _FrontendService_Put_Handler,
+		},
+		{
+			MethodName: "Get",
+			Handler:    _FrontendService_Get_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
