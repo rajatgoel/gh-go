@@ -26,7 +26,7 @@ jobs:
           go-version-file: 'go.mod'
 
       - name: Go Format
-        run: gofmt -s -w . && git diff --exit-code
+        run: gofmt -w . && git diff --exit-code
 
       - name: Go Vet
         run: go vet ./...

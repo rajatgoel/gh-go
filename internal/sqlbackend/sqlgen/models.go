@@ -4,6 +4,8 @@
 
 package sqlgen
 
+import ()
+
 type Keyvalue struct {
 	Key   int64
 	Value string
