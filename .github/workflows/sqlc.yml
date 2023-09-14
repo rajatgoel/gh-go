@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Install SQLc
-        uses: sqlc-dev/setup-sqlc@v3
+        uses: sqlc-dev/setup-sqlc@v4
         with:
           sqlc-version: '1.21.0'
 
