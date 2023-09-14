@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	frontend_pb "github.com/rajatgoel/gh-go/gen/frontend/v1"
+	frontendpb "github.com/rajatgoel/gh-go/gen/frontend/v1"
 	"github.com/rajatgoel/gh-go/internal/frontend"
 	"github.com/rajatgoel/gh-go/internal/sqlbackend"
 )
@@ -17,13 +17,13 @@ func TestStub(t *testing.T) {
 	h := frontend.New(b)
 
 	key, value := int64(1), "value"
-	_, err = h.Put(context.Background(), &frontend_pb.PutRequest{
+	_, err = h.Put(context.Background(), &frontendpb.PutRequest{
 		Key:   key,
 		Value: value,
 	})
 	require.NoError(t, err)
 
-	resp, err := h.Get(context.Background(), &frontend_pb.GetRequest{
+	resp, err := h.Get(context.Background(), &frontendpb.GetRequest{
 		Key: key,
 	})
 	require.NoError(t, err)

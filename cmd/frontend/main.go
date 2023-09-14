@@ -9,7 +9,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	frontend_pb "github.com/rajatgoel/gh-go/gen/frontend/v1"
+	frontendpb "github.com/rajatgoel/gh-go/gen/frontend/v1"
 	"github.com/rajatgoel/gh-go/internal/frontend"
 	"github.com/rajatgoel/gh-go/internal/sqlbackend"
 )
@@ -31,7 +31,7 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	frontend_pb.RegisterFrontendServiceServer(s, handler)
+	frontendpb.RegisterFrontendServiceServer(s, handler)
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
