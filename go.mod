@@ -6,7 +6,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	google.golang.org/grpc v1.58.2
 	google.golang.org/protobuf v1.31.0
-	modernc.org/sqlite v1.25.0
+	modernc.org/sqlite v1.26.0
 )
 
 require (
