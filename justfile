@@ -1,5 +1,5 @@
 setup:
-        brew install go bufbuild/buf/buf golangci-lint sqlc
+        brew install go bufbuild/buf/buf golangci-lint sqlc goreleaser/tap/goreleaser
 
 gen:
         buf generate proto
