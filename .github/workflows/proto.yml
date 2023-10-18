@@ -27,3 +27,5 @@ jobs:
         with:
           input: "proto"
           against: "https://github.com/${GITHUB_REPOSITORY}.git#branch=main,subdir=proto"
+      - name: Check proto diff
+        run: buf generate proto && git diff --exit-code
