@@ -10,7 +10,7 @@ A Github template to kick start a new Go module.
 
 ## Integrations
 
-- [x] [buf](https://buf.build/)
+- [x] [buf](https://buf.build/) for protobuf and gRPC.
 - [x] [sqlc](https://sqlc.dev/) for SQL backend.
 - [x] [golangci-lint](https://golangci-lint.run/) for linters.
 - [x] [goreleaser](https://goreleaser.com/) for releases.
