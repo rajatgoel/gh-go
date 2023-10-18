@@ -14,7 +14,7 @@ A Github template to kick start a new Go module.
     * [ ] Check if protobuf code needs to be generated before check-in.
 - [x] [sqlc](https://sqlc.dev/) for SQL backend.
 - [x] [golangci-lint](https://golangci-lint.run/) for linters.
-- [ ] [goreleaser](https://goreleaser.com/) for releases.
+- [x] [goreleaser](https://goreleaser.com/) for releases.
 
 ## Project layout
 
