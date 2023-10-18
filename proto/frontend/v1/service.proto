@@ -5,6 +5,7 @@ package frontend.v1;
 message PutRequest {
         int64 key = 1;
         string value = 2;
+        string tag = 3;
 }
 
 message PutResponse {
