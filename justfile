@@ -1,9 +1,9 @@
 setup:
-        brew install go bufbuild/buf/buf golangci-lint sqlc goreleaser/tap/goreleaser
+        brew install go bufbuild/buf/buf golangci-lint sqlc goreleaser/tap/goreleaser fd
 
 gen:
         buf generate proto
-        cd internal/sqlbackend && sqlc generate
+        fd sqlc.yaml . | xargs sqlc generate -f
 
 lint: gen
         buf lint proto
