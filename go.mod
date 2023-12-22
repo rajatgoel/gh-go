@@ -5,7 +5,7 @@ go 1.21.0
 require (
 	github.com/stretchr/testify v1.8.4
 	google.golang.org/grpc v1.60.1
-	google.golang.org/protobuf v1.31.0
+	google.golang.org/protobuf v1.32.0
 	modernc.org/sqlite v1.28.0
 )
 
