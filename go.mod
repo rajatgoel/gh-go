@@ -1,6 +1,6 @@
 module github.com/rajatgoel/gh-go
 
-go 1.21.0
+go 1.21.5
 
 require (
 	github.com/stretchr/testify v1.8.4
