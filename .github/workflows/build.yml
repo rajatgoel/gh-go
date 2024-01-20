@@ -17,13 +17,14 @@ jobs:
       fail-fast: true
 
     steps:
-      - name: Check out code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Install Go
         uses: actions/setup-go@v5
         with:
           go-version-file: 'go.mod'
+          cache: true
 
       - name: Go Format
         run: gofmt -w . && git diff --exit-code
@@ -50,9 +51,6 @@ jobs:
 
       - name: Go Build
         run: go build -o /dev/null ./...
-
-      - name: Go Compile Tests
-        run: go test -exec /bin/true ./...
 
       - name: Go Test
         run: go test -v -count=1 -race -shuffle=on ./...
