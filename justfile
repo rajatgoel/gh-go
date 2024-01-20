@@ -7,7 +7,7 @@ gen:
 
 lint: gen
         buf lint proto
-        buf breaking proto --against '.git#branch=main,subdir=proto' || true
+        buf breaking proto --against '.git#branch=main,subdir=proto'
         golangci-lint run ./...
 
 test: lint
