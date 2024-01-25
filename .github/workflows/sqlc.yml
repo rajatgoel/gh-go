@@ -14,8 +14,6 @@ jobs:
     name: Sqlc
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    strategy:
-      fail-fast: true
 
     steps:
       - name: Install SQLc
@@ -30,4 +28,4 @@ jobs:
         run: find . -name sqlc.yaml | xargs sqlc diff -f
 
       - name: Run sqlc vet
-        run: find . -name sqlc.yaml | xargs sqlc vet -f 
+        run: find . -name sqlc.yaml | xargs sqlc vet -f
