@@ -24,4 +24,4 @@ jobs:
         run: go run github.com/bufbuild/buf/cmd/buf lint proto
 
       - name: Buf breaking
-        run: go run github.com/bufbuild/buf/cmd/buf breaking proto --against '.git#branch=main,subdir=proto'
+        run: go run github.com/bufbuild/buf/cmd/buf breaking proto --against 'https://github.com/${GITHUB_REPOSITORY}.git#branch=main,subdir=proto'
