@@ -1,14 +1,11 @@
-setup:
-        brew install go bufbuild/buf/buf golangci-lint sqlc goreleaser/tap/goreleaser fd
-
 gen:
-        buf generate proto
-        fd sqlc.yaml . | xargs sqlc generate -f
+        go run github.com/bufbuild/buf/cmd/buf generate proto
+        find . -name sqlc.yaml | xargs go run github.com/sqlc-dev/sqlc/cmd/sqlc generate -f
 
 lint: gen
-        buf lint proto
-        buf breaking proto --against '.git#branch=main,subdir=proto'
-        golangci-lint run ./...
+        go run github.com/bufbuild/buf/cmd/buf lint proto
+        go run github.com/bufbuild/buf/cmd/buf breaking proto --against '.git#branch=main,subdir=proto'
+        go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./...
 
 test: lint
         go vet ./...

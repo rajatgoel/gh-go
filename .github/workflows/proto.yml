@@ -14,16 +14,14 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: bufbuild/buf-setup-action@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: bufbuild/buf-lint-action@v1
-        with:
-          input: "proto"
-      - uses: bufbuild/buf-breaking-action@v1
-        with:
-          input: "proto"
-          against: "https://github.com/${GITHUB_REPOSITORY}.git#branch=main,subdir=proto"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Check proto diff
-        run: buf generate proto && git diff --exit-code
+        run: go run github.com/bufbuild/buf/cmd/buf generate proto && git diff --exit-code
+
+      - name: Buf lint
+        run: go run github.com/bufbuild/buf/cmd/buf lint proto
+
+      - name: Buf breaking
+        run: go run github.com/bufbuild/buf/cmd/buf breaking proto --against "https://github.com/${GITHUB_REPOSITORY}.git#branch=main,subdir=proto"
