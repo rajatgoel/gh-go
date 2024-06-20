@@ -1,12 +1,13 @@
-version: v1
+version: v2
 managed:
   enabled: true
-  go_package_prefix:
-    default: github.com/rajatgoel/gh-go/gen
+  override:
+    - file_option: go_package_prefix
+      value: github.com/rajatgoel/gh-go/gen
 plugins:
-  - plugin: buf.build/protocolbuffers/go:v1.33.0
+  - remote: buf.build/protocolbuffers/go:v1.33.0
     out: gen
     opt: paths=source_relative
-  - plugin: buf.build/grpc/go:v1.3.0
+  - remote: buf.build/grpc/go:v1.3.0
     out: gen
     opt: paths=source_relative
