@@ -3,8 +3,8 @@ package frontend
 import (
 	"context"
 
-	frontendpb "github.com/rajatgoel/gh-go/proto/frontend/v1"
 	"github.com/rajatgoel/gh-go/internal/sqlbackend"
+	frontendpb "github.com/rajatgoel/gh-go/proto/frontend/v1"
 )
 
 type handler struct {
