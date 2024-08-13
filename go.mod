@@ -1,6 +1,6 @@
 module github.com/rajatgoel/gh-go
 
-go 1.22.4
+go 1.23.0
 
 require (
 	github.com/bufbuild/buf v1.34.0
