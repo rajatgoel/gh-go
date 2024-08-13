@@ -3,7 +3,7 @@ package frontend
 import (
 	"context"
 
-	frontendpb "github.com/rajatgoel/gh-go/gen/frontend/v1"
+	frontendpb "github.com/rajatgoel/gh-go/proto/frontend/v1"
 	"github.com/rajatgoel/gh-go/internal/sqlbackend"
 )
 
