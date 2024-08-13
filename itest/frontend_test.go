@@ -6,9 +6,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	frontendpb "github.com/rajatgoel/gh-go/gen/frontend/v1"
 	"github.com/rajatgoel/gh-go/internal/frontend"
 	"github.com/rajatgoel/gh-go/internal/sqlbackend"
+	frontendpb "github.com/rajatgoel/gh-go/proto/frontend/v1"
 )
 
 func TestStub(t *testing.T) {

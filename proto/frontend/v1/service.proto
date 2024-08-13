@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package frontend.v1;
 
+option go_package = "github.com/rajatgoel/gh-go/proto/frontend/v1";
+
 message PutRequest {
         int64 key = 1;
         string value = 2;
