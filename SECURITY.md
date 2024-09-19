@@ -8,5 +8,4 @@ Security updates are applied only to the latest release.
 
 Please disclose it at our [security advisory](https://github.com/rajatgoel/gh-go/advisories/new).
 
-Your report will be acknowledged within 7 days, and you’ll be kept up to date with the progress until resolution. 
-Your issue will be fixed or made public within 90 days.
+This project is maintained by a team of volunteers on a reasonable-effort basis. As such, vulnerabilities will be handled and/or disclosed in a best effort base.
