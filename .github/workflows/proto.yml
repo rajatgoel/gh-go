@@ -18,10 +18,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Check proto diff
-        run: go run github.com/bufbuild/buf/cmd/buf generate proto && git diff --exit-code
+        run: go tool buf generate proto && git diff --exit-code
 
       - name: Buf lint
-        run: go run github.com/bufbuild/buf/cmd/buf lint proto
+        run: go tool buf lint proto
 
       - name: Buf breaking
-        run: go run github.com/bufbuild/buf/cmd/buf breaking proto --against "https://github.com/${GITHUB_REPOSITORY}.git#branch=main,subdir=proto"
+        run: go tool buf breaking proto --against "https://github.com/${GITHUB_REPOSITORY}.git#branch=main,subdir=proto"
