@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run sqlc diff
-        run: find . -name sqlc.yaml | xargs go run github.com/sqlc-dev/sqlc/cmd/sqlc diff -f
+        run: find . -name sqlc.yaml | xargs go tool sqlc diff -f
 
       - name: Run sqlc vet
-        run: find . -name sqlc.yaml | xargs go run github.com/sqlc-dev/sqlc/cmd/sqlc vet -f
+        run: find . -name sqlc.yaml | xargs go tool sqlc vet -f
