@@ -8,7 +8,7 @@ require (
 	connectrpc.com/grpcreflect v1.2.0
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/net v0.32.0
-	google.golang.org/protobuf v1.35.1
+	google.golang.org/protobuf v1.36.0
 	modernc.org/sqlite v1.31.1
 )
 

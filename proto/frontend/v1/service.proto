@@ -1,8 +1,11 @@
-syntax = "proto3";
+edition = "2023";
 
 package frontend.v1;
 
+import "google/protobuf/go_features.proto";
+
 option go_package = "github.com/rajatgoel/gh-go/proto/frontend/v1";
+option features.(pb.go).api_level = API_OPAQUE;
 
 message PutRequest {
         int64 key = 1;
