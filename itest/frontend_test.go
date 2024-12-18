@@ -27,21 +27,21 @@ func TestStub(t *testing.T) {
 	key, value := int64(1), "value"
 	client := frontendv1connect.NewFrontendServiceClient(http.DefaultClient, server.URL)
 
-	resp, err := client.Get(context.Background(), connect.NewRequest(&frontendpb.GetRequest{
+	resp, err := client.Get(context.Background(), connect.NewRequest(frontendpb.GetRequest_builder{
 		Key: key,
-	}))
+	}.Build()))
 	require.NoError(t, err)
-	require.Empty(t, resp.Msg.Value)
+	require.Empty(t, resp.Msg.GetValue())
 
-	_, err = client.Put(context.Background(), connect.NewRequest(&frontendpb.PutRequest{
+	_, err = client.Put(context.Background(), connect.NewRequest(frontendpb.PutRequest_builder{
 		Key:   key,
 		Value: value,
-	}))
+	}.Build()))
 	require.NoError(t, err)
 
-	resp, err = client.Get(context.Background(), connect.NewRequest(&frontendpb.GetRequest{
+	resp, err = client.Get(context.Background(), connect.NewRequest(frontendpb.GetRequest_builder{
 		Key: key,
-	}))
+	}.Build()))
 	require.NoError(t, err)
-	require.Equal(t, value, resp.Msg.Value)
+	require.Equal(t, value, resp.Msg.GetValue())
 }
