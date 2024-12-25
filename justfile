@@ -1,7 +1,7 @@
 gen:
-        go mod tidy
         go tool buf generate proto
         find . -name sqlc.yaml | xargs go tool sqlc generate -f
+        go mod tidy
 
 lint: gen
         go tool buf lint proto
