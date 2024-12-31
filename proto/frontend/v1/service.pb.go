@@ -4,6 +4,8 @@
 // 	protoc        (unknown)
 // source: frontend/v1/service.proto
 
+//go:build !protoopaque
+
 package v1
 
 import (
@@ -20,11 +22,11 @@ const (
 )
 
 type PutRequest struct {
-	state            protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Key   int64                  `protobuf:"varint,1,opt,name=key" json:"key,omitempty"`
-	xxx_hidden_Value string                 `protobuf:"bytes,2,opt,name=value" json:"value,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"hybrid.v1"`
+	Key           int64                  `protobuf:"varint,1,opt,name=key" json:"key,omitempty"`
+	Value         string                 `protobuf:"bytes,2,opt,name=value" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *PutRequest) Reset() {
@@ -54,24 +56,24 @@ func (x *PutRequest) ProtoReflect() protoreflect.Message {
 
 func (x *PutRequest) GetKey() int64 {
 	if x != nil {
-		return x.xxx_hidden_Key
+		return x.Key
 	}
 	return 0
 }
 
 func (x *PutRequest) GetValue() string {
 	if x != nil {
-		return x.xxx_hidden_Value
+		return x.Value
 	}
 	return ""
 }
 
 func (x *PutRequest) SetKey(v int64) {
-	x.xxx_hidden_Key = v
+	x.Key = v
 }
 
 func (x *PutRequest) SetValue(v string) {
-	x.xxx_hidden_Value = v
+	x.Value = v
 }
 
 type PutRequest_builder struct {
@@ -85,13 +87,13 @@ func (b0 PutRequest_builder) Build() *PutRequest {
 	m0 := &PutRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.xxx_hidden_Key = b.Key
-	x.xxx_hidden_Value = b.Value
+	x.Key = b.Key
+	x.Value = b.Value
 	return m0
 }
 
 type PutResponse struct {
-	state         protoimpl.MessageState `protogen:"opaque.v1"`
+	state         protoimpl.MessageState `protogen:"hybrid.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -134,10 +136,10 @@ func (b0 PutResponse_builder) Build() *PutResponse {
 }
 
 type GetRequest struct {
-	state          protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Key int64                  `protobuf:"varint,1,opt,name=key" json:"key,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"hybrid.v1"`
+	Key           int64                  `protobuf:"varint,1,opt,name=key" json:"key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetRequest) Reset() {
@@ -167,13 +169,13 @@ func (x *GetRequest) ProtoReflect() protoreflect.Message {
 
 func (x *GetRequest) GetKey() int64 {
 	if x != nil {
-		return x.xxx_hidden_Key
+		return x.Key
 	}
 	return 0
 }
 
 func (x *GetRequest) SetKey(v int64) {
-	x.xxx_hidden_Key = v
+	x.Key = v
 }
 
 type GetRequest_builder struct {
@@ -186,15 +188,15 @@ func (b0 GetRequest_builder) Build() *GetRequest {
 	m0 := &GetRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.xxx_hidden_Key = b.Key
+	x.Key = b.Key
 	return m0
 }
 
 type GetResponse struct {
-	state            protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Value string                 `protobuf:"bytes,1,opt,name=value" json:"value,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"hybrid.v1"`
+	Value         string                 `protobuf:"bytes,1,opt,name=value" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetResponse) Reset() {
@@ -224,13 +226,13 @@ func (x *GetResponse) ProtoReflect() protoreflect.Message {
 
 func (x *GetResponse) GetValue() string {
 	if x != nil {
-		return x.xxx_hidden_Value
+		return x.Value
 	}
 	return ""
 }
 
 func (x *GetResponse) SetValue(v string) {
-	x.xxx_hidden_Value = v
+	x.Value = v
 }
 
 type GetResponse_builder struct {
@@ -243,7 +245,7 @@ func (b0 GetResponse_builder) Build() *GetResponse {
 	m0 := &GetResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.xxx_hidden_Value = b.Value
+	x.Value = b.Value
 	return m0
 }
 

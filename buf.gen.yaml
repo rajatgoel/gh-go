@@ -4,7 +4,7 @@ plugins:
     out: proto
     opt: 
       - paths=source_relative
-      - default_api_level=API_OPAQUE
+      - default_api_level=API_HYBRID
   - remote: buf.build/connectrpc/go:v1.17.0
     out: proto
     opt: paths=source_relative
