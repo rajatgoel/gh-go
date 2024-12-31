@@ -20,7 +20,7 @@ func (h *handler) Put(
 	ctx context.Context,
 	req *connect.Request[frontendpb.PutRequest],
 ) (*connect.Response[frontendpb.PutResponse], error) {
-	h.backend.Put(ctx, req.Msg.Key, req.Msg.Value)
+	h.backend.Put(ctx, req.Msg.GetKey(), req.Msg.GetValue())
 	return connect.NewResponse(&frontendpb.PutResponse{}), nil
 }
 
@@ -28,8 +28,8 @@ func (h *handler) Get(
 	ctx context.Context,
 	req *connect.Request[frontendpb.GetRequest],
 ) (*connect.Response[frontendpb.GetResponse], error) {
-	value := h.backend.Get(ctx, req.Msg.Key)
-	return connect.NewResponse(&frontendpb.GetResponse{Value: value}), nil
+	value := h.backend.Get(ctx, req.Msg.GetKey())
+	return connect.NewResponse(frontendpb.GetResponse_builder{Value: value}.Build()), nil
 }
 
 func New(backend sqlbackend.Backend) frontendv1connect.FrontendServiceHandler {
