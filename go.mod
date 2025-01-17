@@ -1,6 +1,6 @@
 module github.com/rajatgoel/gh-go
 
-go 1.24rc1
+go 1.24rc2
 
 require (
 	connectrpc.com/connect v1.17.0
