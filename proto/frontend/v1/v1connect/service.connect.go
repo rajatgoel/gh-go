@@ -39,13 +39,6 @@ const (
 	FrontendServiceGetProcedure = "/frontend.v1.FrontendService/Get"
 )
 
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	frontendServiceServiceDescriptor   = v1.File_frontend_v1_service_proto.Services().ByName("FrontendService")
-	frontendServicePutMethodDescriptor = frontendServiceServiceDescriptor.Methods().ByName("Put")
-	frontendServiceGetMethodDescriptor = frontendServiceServiceDescriptor.Methods().ByName("Get")
-)
-
 // FrontendServiceClient is a client for the frontend.v1.FrontendService service.
 type FrontendServiceClient interface {
 	Put(context.Context, *connect.Request[v1.PutRequest]) (*connect.Response[v1.PutResponse], error)
@@ -61,17 +54,18 @@ type FrontendServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewFrontendServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) FrontendServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	frontendServiceMethods := v1.File_frontend_v1_service_proto.Services().ByName("FrontendService").Methods()
 	return &frontendServiceClient{
 		put: connect.NewClient[v1.PutRequest, v1.PutResponse](
 			httpClient,
 			baseURL+FrontendServicePutProcedure,
-			connect.WithSchema(frontendServicePutMethodDescriptor),
+			connect.WithSchema(frontendServiceMethods.ByName("Put")),
 			connect.WithClientOptions(opts...),
 		),
 		get: connect.NewClient[v1.GetRequest, v1.GetResponse](
 			httpClient,
 			baseURL+FrontendServiceGetProcedure,
-			connect.WithSchema(frontendServiceGetMethodDescriptor),
+			connect.WithSchema(frontendServiceMethods.ByName("Get")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -105,16 +99,17 @@ type FrontendServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewFrontendServiceHandler(svc FrontendServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	frontendServiceMethods := v1.File_frontend_v1_service_proto.Services().ByName("FrontendService").Methods()
 	frontendServicePutHandler := connect.NewUnaryHandler(
 		FrontendServicePutProcedure,
 		svc.Put,
-		connect.WithSchema(frontendServicePutMethodDescriptor),
+		connect.WithSchema(frontendServiceMethods.ByName("Put")),
 		connect.WithHandlerOptions(opts...),
 	)
 	frontendServiceGetHandler := connect.NewUnaryHandler(
 		FrontendServiceGetProcedure,
 		svc.Get,
-		connect.WithSchema(frontendServiceGetMethodDescriptor),
+		connect.WithSchema(frontendServiceMethods.ByName("Get")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/frontend.v1.FrontendService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
