@@ -5,9 +5,9 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"log"
 	"log/slog"
 	"net/http"
+	"os"
 
 	"connectrpc.com/grpchealth"
 	"connectrpc.com/grpcreflect"
@@ -26,8 +26,10 @@ func main() {
 	ctx := context.Background()
 	backend, err := sqlbackend.New(ctx)
 	if err != nil {
-		log.Fatalf("failed to create backend: %v", err)
+		slog.Error("failed to create backend", "error", err)
+		os.Exit(1)
 	}
+
 	path, handler := frontendv1connect.NewFrontendServiceHandler(frontend.New(backend))
 
 	mux := http.NewServeMux()
@@ -48,6 +50,7 @@ func main() {
 
 	slog.Info("starting server", "port", *port, "path", path)
 	if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
-		log.Fatalf("failed to start server: %v", err)
+		slog.Error("failed to start server", "error", err)
+		os.Exit(1)
 	}
 }
