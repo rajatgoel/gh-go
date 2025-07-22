@@ -11,8 +11,8 @@ import (
 )
 
 type Backend interface {
-	Put(ctx context.Context, key int64, value string)
-	Get(ctx context.Context, key int64) string
+	Put(ctx context.Context, key int64, value string) error
+	Get(ctx context.Context, key int64) (string, error)
 }
 
 //go:embed schema.sql
@@ -35,14 +35,18 @@ func New(ctx context.Context) (Backend, error) {
 	return &sqliteBackend{q: sqlgen.New(db)}, nil
 }
 
-func (s *sqliteBackend) Put(ctx context.Context, key int64, value string) {
-	_, _ = s.q.Put(ctx, sqlgen.PutParams{
+func (s *sqliteBackend) Put(ctx context.Context, key int64, value string) error {
+	_, err := s.q.Put(ctx, sqlgen.PutParams{
 		Key:   key,
 		Value: value,
 	})
+	return err
 }
 
-func (s *sqliteBackend) Get(ctx context.Context, key int64) string {
-	get, _ := s.q.Get(ctx, key)
-	return get.Value
+func (s *sqliteBackend) Get(ctx context.Context, key int64) (string, error) {
+	get, err := s.q.Get(ctx, key)
+	if err != nil {
+		return "", err
+	}
+	return get.Value, nil
 }

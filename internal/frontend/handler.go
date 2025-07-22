@@ -20,7 +20,9 @@ func (h *handler) Put(
 	ctx context.Context,
 	req *connect.Request[frontendpb.PutRequest],
 ) (*connect.Response[frontendpb.PutResponse], error) {
-	h.backend.Put(ctx, req.Msg.GetKey(), req.Msg.GetValue())
+	if err := h.backend.Put(ctx, req.Msg.GetKey(), req.Msg.GetValue()); err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
 	return connect.NewResponse(&frontendpb.PutResponse{}), nil
 }
 
@@ -28,7 +30,10 @@ func (h *handler) Get(
 	ctx context.Context,
 	req *connect.Request[frontendpb.GetRequest],
 ) (*connect.Response[frontendpb.GetResponse], error) {
-	value := h.backend.Get(ctx, req.Msg.GetKey())
+	value, err := h.backend.Get(ctx, req.Msg.GetKey())
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
 	return connect.NewResponse(frontendpb.GetResponse_builder{Value: value}.Build()), nil
 }
 

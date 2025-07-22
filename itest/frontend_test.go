@@ -15,7 +15,7 @@ import (
 	frontendv1connect "github.com/rajatgoel/gh-go/proto/frontend/v1/v1connect"
 )
 
-func TestStub(t *testing.T) {
+func TestBasic(t *testing.T) {
 	b, err := sqlbackend.New(context.Background())
 	require.NoError(t, err)
 
@@ -27,11 +27,14 @@ func TestStub(t *testing.T) {
 	key, value := int64(1), "value"
 	client := frontendv1connect.NewFrontendServiceClient(http.DefaultClient, server.URL)
 
-	resp, err := client.Get(context.Background(), connect.NewRequest(frontendpb.GetRequest_builder{
+	// First Get should fail since key doesn't exist yet
+	_, err = client.Get(context.Background(), connect.NewRequest(frontendpb.GetRequest_builder{
 		Key: key,
 	}.Build()))
-	require.NoError(t, err)
-	require.Empty(t, resp.Msg.GetValue())
+	require.Error(t, err)
+	connectErr, ok := err.(*connect.Error)
+	require.True(t, ok, "expected connect.Error")
+	require.Equal(t, connect.CodeInternal, connectErr.Code())
 
 	_, err = client.Put(context.Background(), connect.NewRequest(frontendpb.PutRequest_builder{
 		Key:   key,
@@ -39,9 +42,9 @@ func TestStub(t *testing.T) {
 	}.Build()))
 	require.NoError(t, err)
 
-	resp, err = client.Get(context.Background(), connect.NewRequest(frontendpb.GetRequest_builder{
+	getResp, err := client.Get(context.Background(), connect.NewRequest(frontendpb.GetRequest_builder{
 		Key: key,
 	}.Build()))
 	require.NoError(t, err)
-	require.Equal(t, value, resp.Msg.GetValue())
+	require.Equal(t, value, getResp.Msg.GetValue())
 }
