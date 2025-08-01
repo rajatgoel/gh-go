@@ -15,3 +15,6 @@ lint: gen
 
 test: lint
         go test ./...
+
+docker: 
+        docker build -t localhost/frontend .

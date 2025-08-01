@@ -11,6 +11,7 @@ import (
 
 	"connectrpc.com/grpchealth"
 	"connectrpc.com/grpcreflect"
+	"github.com/earthboundkid/versioninfo/v2"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 
@@ -21,6 +22,7 @@ import (
 
 func main() {
 	port := flag.Int("port", 5051, "The server port")
+	versioninfo.AddFlag(nil)
 	flag.Parse()
 
 	ctx := context.Background()

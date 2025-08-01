@@ -6,6 +6,7 @@ require (
 	connectrpc.com/connect v1.18.1
 	connectrpc.com/grpchealth v1.4.0
 	connectrpc.com/grpcreflect v1.3.0
+	github.com/earthboundkid/versioninfo/v2 v2.24.1
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/net v0.42.0
 	google.golang.org/protobuf v1.36.6
@@ -323,6 +324,7 @@ require (
 
 tool (
 	github.com/bufbuild/buf/cmd/buf
+	github.com/earthboundkid/versioninfo/v2
 	github.com/golangci/golangci-lint/cmd/golangci-lint
 	github.com/sqlc-dev/sqlc/cmd/sqlc
 	golang.org/x/tools/cmd/deadcode
