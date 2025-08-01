@@ -26,6 +26,9 @@ go tool buf generate proto
 # Generate SQL code
 find . -name sqlc.yaml | xargs go tool sqlc generate -f
 
+# Format imports (groups: std, current package, 3rd-party)
+go tool goimports -local github.com/rajatgoel/gh-go -w .
+
 # Update dependencies
 go mod tidy
 
@@ -35,11 +38,20 @@ go tool buf lint proto
 # Check for breaking changes in Protocol Buffers
 go tool buf breaking proto --against '.git#branch=main,subdir=proto'
 
-# Run Go linter
-go tool golangci-lint run ./...
+# Apply automatic fixes
+go fix ./...
 
-# Run Go's code analysis
+# Run Go's built-in static analysis
 go vet ./...
+
+# Run additional static analysis
+go tool staticcheck ./...
+
+# Run security vulnerability check
+go tool govulncheck ./...
+
+# Run comprehensive linting
+go tool golangci-lint run ./...
 
 # Run tests
 go test ./...
@@ -47,12 +59,29 @@ go test ./...
 # Run tests with race detection and shuffle
 go test -v -count=1 -race -shuffle=on ./...
 
-# Run security vulnerability check
-go tool govulncheck -test ./...
+# Run single test
+go test ./itest -run TestFrontendService
 
 # Check for dead code
 go tool deadcode ./...
 ```
+
+### Tool Management
+
+All development tools are managed via `go get -tool` and listed in the `tool` section of `go.mod`. To add a new tool:
+
+```bash
+go get -tool <tool-package>
+```
+
+Current tools:
+- `buf` - Protocol Buffer tooling
+- `golangci-lint` - Go linting
+- `sqlc` - SQL code generation
+- `deadcode` - Dead code detection
+- `goimports` - Import formatting and organization
+- `govulncheck` - Vulnerability scanning
+- `staticcheck` - Static analysis
 
 ## Project Architecture
 

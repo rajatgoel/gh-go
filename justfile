@@ -1,7 +1,7 @@
 gen:
         go tool buf generate proto
         find . -name sqlc.yaml | xargs go tool sqlc generate -f
-        go tool goimports -w .
+        go tool goimports -local github.com/rajatgoel/gh-go -w .
         go mod tidy
 
 lint: gen
