@@ -34,7 +34,7 @@ func setupTestServer(t *testing.T, backend sqlbackend.Backend) frontendpb.Fronte
 	// Create in-memory gRPC server
 	lis := bufconn.Listen(1024 * 1024)
 
-	s := frontend.NewServer(backend)
+	s := frontend.NewServer(t.Context(), backend)
 	go func() {
 		if err := s.Serve(lis); err != nil {
 			t.Logf("Server exited with error: %v", err)
@@ -56,14 +56,14 @@ func setupTestServer(t *testing.T, backend sqlbackend.Backend) frontendpb.Fronte
 }
 
 func TestBasic(t *testing.T) {
-	backend, err := sqlbackend.New(context.Background())
+	backend, err := sqlbackend.New(t.Context())
 	require.NoError(t, err)
 
 	client := setupTestServer(t, backend)
 	key, value := int64(1), "value"
 
 	// First Get should fail since key doesn't exist yet
-	_, err = client.Get(context.Background(), frontendpb.GetRequest_builder{
+	_, err = client.Get(t.Context(), frontendpb.GetRequest_builder{
 		Key: key,
 	}.Build())
 	require.Error(t, err)
@@ -73,14 +73,14 @@ func TestBasic(t *testing.T) {
 	require.Contains(t, grpcErr.Message(), "no rows")
 
 	// Put the key-value pair
-	_, err = client.Put(context.Background(), frontendpb.PutRequest_builder{
+	_, err = client.Put(t.Context(), frontendpb.PutRequest_builder{
 		Key:   key,
 		Value: value,
 	}.Build())
 	require.NoError(t, err)
 
 	// Get should now succeed
-	getResp, err := client.Get(context.Background(), frontendpb.GetRequest_builder{
+	getResp, err := client.Get(t.Context(), frontendpb.GetRequest_builder{
 		Key: key,
 	}.Build())
 	require.NoError(t, err)
@@ -94,7 +94,7 @@ func TestErrorHandling(t *testing.T) {
 	key, value := int64(1), "test-value"
 
 	// Test Put error propagation
-	_, err := client.Put(context.Background(), frontendpb.PutRequest_builder{
+	_, err := client.Put(t.Context(), frontendpb.PutRequest_builder{
 		Key:   key,
 		Value: value,
 	}.Build())
@@ -105,7 +105,7 @@ func TestErrorHandling(t *testing.T) {
 	require.Contains(t, grpcErr.Message(), "mock database error on Put")
 
 	// Test Get error propagation
-	_, err = client.Get(context.Background(), frontendpb.GetRequest_builder{
+	_, err = client.Get(t.Context(), frontendpb.GetRequest_builder{
 		Key: key,
 	}.Build())
 	require.Error(t, err)

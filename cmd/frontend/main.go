@@ -31,11 +31,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Create gRPC server
-	server := frontend.NewServer(backend)
+	// Create gRPC server with OpenTelemetry instrumentation (enabled by default)
+	server := frontend.NewServer(ctx, backend)
+	slog.Info("created gRPC server with OpenTelemetry instrumentation")
 
 	// Listen on TCP port
-	lis, err := net.Listen("tcp", fmt.Sprintf("::%d", *port))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
 		slog.Error("failed to listen", "error", err)
 		os.Exit(1)
