@@ -34,7 +34,8 @@ func setupTestServer(t *testing.T, backend sqlbackend.Backend) frontendpb.Fronte
 	// Create in-memory gRPC server
 	lis := bufconn.Listen(1024 * 1024)
 
-	s := frontend.NewServer(t.Context(), backend)
+	s, err := frontend.NewServer(t.Context(), frontend.DefaultConfig(), backend)
+	require.NoError(t, err)
 	go func() {
 		if err := s.Serve(lis); err != nil {
 			t.Logf("Server exited with error: %v", err)

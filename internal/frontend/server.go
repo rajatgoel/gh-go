@@ -2,7 +2,7 @@ package frontend
 
 import (
 	"context"
-	"log/slog"
+	"fmt"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
@@ -17,14 +17,10 @@ import (
 )
 
 // NewServer creates a new gRPC server with health checks, reflection, and OpenTelemetry instrumentation
-func NewServer(ctx context.Context, backend sqlbackend.Backend) *grpc.Server {
+func NewServer(ctx context.Context, config *Config, backend sqlbackend.Backend) (*grpc.Server, error) {
 	// Setup OpenTelemetry with default configuration
-	config := DefaultConfig()
-	_, err := SetupOTEL(ctx, config)
-	if err != nil {
-		// Log error but continue without OTEL - don't fail server creation
-		// In production, you might want to fail here
-		slog.Warn("failed to setup OpenTelemetry, continuing without instrumentation", "error", err)
+	if _, err := SetupOTEL(ctx, config); err != nil {
+		return nil, fmt.Errorf("failed to setup OpenTelemetry: %w", err)
 	}
 
 	// Create gRPC server with OTEL stats handler
@@ -47,5 +43,5 @@ func NewServer(ctx context.Context, backend sqlbackend.Backend) *grpc.Server {
 	// Register reflection service
 	reflection.Register(server)
 
-	return server
+	return server, nil
 }

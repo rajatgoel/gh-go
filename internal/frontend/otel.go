@@ -31,10 +31,6 @@ func DefaultConfig() *Config {
 
 // SetupOTEL initializes OpenTelemetry with the given configuration
 func SetupOTEL(ctx context.Context, config *Config) (func(), error) {
-	if config == nil {
-		config = DefaultConfig()
-	}
-
 	// Create resource with service information
 	res, err := resource.New(ctx,
 		resource.WithAttributes(

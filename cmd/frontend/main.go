@@ -32,7 +32,11 @@ func main() {
 	}
 
 	// Create gRPC server with OpenTelemetry instrumentation (enabled by default)
-	server := frontend.NewServer(ctx, backend)
+	server, err := frontend.NewServer(ctx, frontend.DefaultConfig(), backend)
+	if err != nil {
+		slog.Error("failed to create gRPC server", "error", err)
+		os.Exit(1)
+	}
 	slog.Info("created gRPC server with OpenTelemetry instrumentation")
 
 	// Listen on TCP port
