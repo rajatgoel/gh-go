@@ -301,10 +301,8 @@ require (
 
 tool (
 	github.com/bufbuild/buf/cmd/buf
-	github.com/earthboundkid/versioninfo/v2
 	github.com/golangci/golangci-lint/cmd/golangci-lint
 	github.com/sqlc-dev/sqlc/cmd/sqlc
-	golang.org/x/tools/cmd/deadcode
 	golang.org/x/tools/cmd/goimports
 	golang.org/x/vuln/cmd/govulncheck
 	honnef.co/go/tools/cmd/staticcheck
