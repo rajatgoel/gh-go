@@ -15,6 +15,9 @@ just lint
 
 # Run tests (depends on lint)
 just test
+
+# Build Docker image
+just docker
 ```
 
 ### Individual Commands
@@ -60,7 +63,7 @@ go test ./...
 go test -v -count=1 -race -shuffle=on ./...
 
 # Run single test
-go test ./itest -run TestFrontendService
+go test ./itest -run TestBasic
 
 # Check for dead code
 go tool deadcode ./...
@@ -87,7 +90,7 @@ Current tools:
 
 ### Overview
 
-gh-go is a key-value store service with a gRPC API using Connect RPC. It follows a clean architecture pattern with separation between API definition, service implementation, and storage.
+gh-go is a key-value store service with a gRPC API. It follows a clean architecture pattern with separation between API definition, service implementation, and storage.
 
 ### Key Components
 
@@ -95,6 +98,7 @@ gh-go is a key-value store service with a gRPC API using Connect RPC. It follows
    - Implements the gRPC service defined in Protocol Buffers
    - Acts as an adapter between client-facing API and backend storage
    - Handles two RPC methods: `Put` (store key-value) and `Get` (retrieve by key)
+   - Uses standard gRPC error handling with status codes
 
 2. **Backend Storage** (`internal/sqlbackend/`)
    - Handles data persistence using SQLite as an in-memory database
@@ -107,13 +111,13 @@ gh-go is a key-value store service with a gRPC API using Connect RPC. It follows
 
 4. **Entry Point** (`cmd/frontend/main.go`)
    - Application bootstrap
-   - Sets up HTTP server with Connect RPC handlers
-   - Configures health checks and gRPC reflection
+   - Sets up native gRPC server with TCP listener
+   - Configures health checks and gRPC reflection services
 
 ### Data Flow
 
 1. Client makes a gRPC request to the server
-2. Request is handled by Connect RPC framework and routed to the appropriate handler
+2. Request is handled by the gRPC framework and routed to the appropriate handler
 3. Handler calls the corresponding method on the backend
 4. Backend executes the operation on the SQLite database
 5. Results flow back to the client
@@ -122,18 +126,36 @@ gh-go is a key-value store service with a gRPC API using Connect RPC. It follows
 
 Integration tests in `itest/frontend_test.go` demonstrate end-to-end functionality:
 - Setting up in-memory SQLite database
-- Creating test HTTP server with frontend handler
-- Using Connect RPC client to make requests
+- Creating test gRPC server using `bufconn` for in-memory connections
+- Using gRPC client to make requests
 - Verifying that values can be stored and retrieved
+- Testing error handling with both real and mock backends
+
+Key tests:
+- `TestBasic` - validates the complete Put/Get workflow including error handling for non-existent keys
+- `TestErrorHandling` - tests error propagation using a mock backend that always fails
+
+The tests use a shared `setupTestServer` helper function to reduce code duplication.
 
 ## Code Generation
 
 The project relies on generated code:
 
-1. **Protocol Buffers**: API definitions compiled to Go code
+1. **Protocol Buffers**: API definitions compiled to Go code using the opaque API
+   - Generates both client and server interfaces for gRPC
+   - Uses builder pattern for message construction (e.g., `PutRequest_builder{}.Build()`)
 2. **SQL**: Queries generated from SQL files using sqlc
 
 Always regenerate code after changes to proto files or SQL files:
 ```bash
 just gen
 ```
+
+## Docker
+
+The project includes a Dockerfile for containerization. Build the image with:
+```bash
+just docker
+```
+
+This creates a multi-stage build optimized for production deployment.

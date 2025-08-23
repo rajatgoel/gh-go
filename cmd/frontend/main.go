@@ -2,22 +2,21 @@ package main
 
 import (
 	"context"
-	"errors"
 	"flag"
 	"fmt"
 	"log/slog"
-	"net/http"
+	"net"
 	"os"
 
-	"connectrpc.com/grpchealth"
-	"connectrpc.com/grpcreflect"
 	"github.com/earthboundkid/versioninfo/v2"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/reflection"
 
 	"github.com/rajatgoel/gh-go/internal/frontend"
 	"github.com/rajatgoel/gh-go/internal/sqlbackend"
-	frontendv1connect "github.com/rajatgoel/gh-go/proto/frontend/v1/v1connect"
+	frontendpb "github.com/rajatgoel/gh-go/proto/frontend/v1"
 )
 
 func main() {
@@ -32,27 +31,30 @@ func main() {
 		os.Exit(1)
 	}
 
-	path, handler := frontendv1connect.NewFrontendServiceHandler(frontend.New(backend))
+	// Create gRPC server
+	server := grpc.NewServer()
 
-	mux := http.NewServeMux()
-	mux.Handle(path, handler)
+	// Register service
+	frontendpb.RegisterFrontendServiceServer(server, frontend.New(backend))
 
-	// health check
-	checker := grpchealth.NewStaticChecker(frontendv1connect.FrontendServiceName)
-	mux.Handle(grpchealth.NewHandler(checker))
+	// Register health check service
+	healthServer := health.NewServer()
+	healthServer.SetServingStatus("frontend.v1.FrontendService", grpc_health_v1.HealthCheckResponse_SERVING)
+	grpc_health_v1.RegisterHealthServer(server, healthServer)
 
-	// reflect
-	reflector := grpcreflect.NewStaticReflector(frontendv1connect.FrontendServiceName)
-	mux.Handle(grpcreflect.NewHandlerV1(reflector))
+	// Register reflection service
+	reflection.Register(server)
 
-	server := &http.Server{
-		Addr:    fmt.Sprintf("127.0.0.1:%d", *port),
-		Handler: h2c.NewHandler(mux, &http2.Server{}),
+	// Listen on TCP port
+	lis, err := net.Listen("tcp", fmt.Sprintf("::%d", *port))
+	if err != nil {
+		slog.Error("failed to listen", "error", err)
+		os.Exit(1)
 	}
 
-	slog.Info("starting server", "port", *port, "path", path)
-	if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
-		slog.Error("failed to start server", "error", err)
+	slog.Info("starting gRPC server", "port", *port)
+	if err := server.Serve(lis); err != nil {
+		slog.Error("failed to serve", "error", err)
 		os.Exit(1)
 	}
 }

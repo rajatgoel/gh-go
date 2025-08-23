@@ -3,40 +3,42 @@ package frontend
 import (
 	"context"
 
-	"connectrpc.com/connect"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/rajatgoel/gh-go/internal/sqlbackend"
 	frontendpb "github.com/rajatgoel/gh-go/proto/frontend/v1"
-	frontendv1connect "github.com/rajatgoel/gh-go/proto/frontend/v1/v1connect"
 )
 
 type handler struct {
-	frontendv1connect.UnimplementedFrontendServiceHandler
+	frontendpb.UnimplementedFrontendServiceServer
 
 	backend sqlbackend.Backend
 }
 
+func New(backend sqlbackend.Backend) frontendpb.FrontendServiceServer {
+	return &handler{backend: backend}
+}
+
 func (h *handler) Put(
 	ctx context.Context,
-	req *connect.Request[frontendpb.PutRequest],
-) (*connect.Response[frontendpb.PutResponse], error) {
-	if err := h.backend.Put(ctx, req.Msg.GetKey(), req.Msg.GetValue()); err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
+	req *frontendpb.PutRequest,
+) (*frontendpb.PutResponse, error) {
+	if err := h.backend.Put(ctx, req.GetKey(), req.GetValue()); err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
-	return connect.NewResponse(&frontendpb.PutResponse{}), nil
+
+	return &frontendpb.PutResponse{}, nil
 }
 
 func (h *handler) Get(
 	ctx context.Context,
-	req *connect.Request[frontendpb.GetRequest],
-) (*connect.Response[frontendpb.GetResponse], error) {
-	value, err := h.backend.Get(ctx, req.Msg.GetKey())
+	req *frontendpb.GetRequest,
+) (*frontendpb.GetResponse, error) {
+	value, err := h.backend.Get(ctx, req.GetKey())
 	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
+		return nil, status.Error(codes.Internal, err.Error())
 	}
-	return connect.NewResponse(frontendpb.GetResponse_builder{Value: value}.Build()), nil
-}
 
-func New(backend sqlbackend.Backend) frontendv1connect.FrontendServiceHandler {
-	return &handler{backend: backend}
+	return frontendpb.GetResponse_builder{Value: value}.Build(), nil
 }
