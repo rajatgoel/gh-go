@@ -7,6 +7,9 @@ import (
 	"log/slog"
 	"net"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/earthboundkid/versioninfo/v2"
 
@@ -19,7 +22,9 @@ func main() {
 	versioninfo.AddFlag(nil)
 	flag.Parse()
 
-	ctx := context.Background()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	backend, err := sqlbackend.New(ctx)
 	if err != nil {
 		slog.Error("failed to create backend", "error", err)
@@ -36,10 +41,29 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Start server on specified port
-	slog.Info("starting gRPC server", "port", *port)
-	if err := server.Serve(lis); err != nil {
-		slog.Error("failed to serve", "error", err)
-		os.Exit(1)
-	}
+	// Start server in a goroutine
+	go func() {
+		slog.Info("starting gRPC server", "port", *port)
+		if err := server.Serve(lis); err != nil {
+			slog.Error("server error", "error", err)
+		}
+	}()
+
+	// Wait for interrupt signal to gracefully shutdown the server
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	slog.Info("shutting down gRPC server...")
+
+	// Give outstanding RPCs a chance to complete
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer shutdownCancel()
+
+	// Gracefully stop the server
+	server.GracefulStop()
+
+	// Wait for server to stop
+	<-shutdownCtx.Done()
+	slog.Info("gRPC server stopped")
 }

@@ -33,6 +33,7 @@ func (m *mockBackend) Get(ctx context.Context, key int64) (string, error) {
 func setupTestServer(t *testing.T, backend sqlbackend.Backend) frontendpb.FrontendServiceClient {
 	// Create in-memory gRPC server
 	lis := bufconn.Listen(1024 * 1024)
+
 	s := frontend.NewServer(backend)
 	go func() {
 		if err := s.Serve(lis); err != nil {
