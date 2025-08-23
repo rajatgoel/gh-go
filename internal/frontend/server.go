@@ -9,10 +9,11 @@ import (
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 
-	"github.com/rajatgoel/gh-go/internal/sqlbackend"
-	frontendpb "github.com/rajatgoel/gh-go/proto/frontend/v1"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/otel"
+
+	"github.com/rajatgoel/gh-go/internal/sqlbackend"
+	frontendpb "github.com/rajatgoel/gh-go/proto/frontend/v1"
 )
 
 // NewServer creates a new gRPC server with health checks, reflection, and OpenTelemetry instrumentation
