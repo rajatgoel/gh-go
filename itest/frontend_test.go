@@ -114,4 +114,3 @@ func TestErrorHandling(t *testing.T) {
 	require.Equal(t, codes.Internal, grpcErr.Code())
 	require.Contains(t, grpcErr.Message(), "mock database error on Get")
 }
-
