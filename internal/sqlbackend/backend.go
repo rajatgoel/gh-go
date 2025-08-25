@@ -3,7 +3,6 @@ package sqlbackend
 import (
 	"context"
 	"database/sql"
-	_ "embed"
 
 	_ "modernc.org/sqlite"
 
@@ -15,9 +14,6 @@ type Backend interface {
 	Get(ctx context.Context, key int64) (string, error)
 }
 
-//go:embed schema.sql
-var ddl string
-
 type sqliteBackend struct {
 	q *sqlgen.Queries
 }
@@ -28,7 +24,8 @@ func New(ctx context.Context) (Backend, error) {
 		return nil, err
 	}
 
-	if _, err := db.ExecContext(ctx, ddl); err != nil {
+	// Apply migrations to set up the database schema
+	if err := runMigrations(db); err != nil {
 		return nil, err
 	}
 

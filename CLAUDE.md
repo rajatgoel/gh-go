@@ -103,6 +103,8 @@ gh-go is a key-value store service with a gRPC API. It follows a clean architect
    - Handles data persistence using SQLite as an in-memory database
    - Defines a `Backend` interface with `Put` and `Get` operations
    - Current implementation (`sqliteBackend`) uses generated SQL code
+   - Uses golang-migrate/migrate/v4 for database schema migrations
+   - Migrations are embedded in the binary using go:embed
 
 3. **API Definition** (`proto/frontend/v1/service.proto`)
    - Defines service contract using Protocol Buffers
@@ -175,3 +177,23 @@ just docker
 ```
 
 This creates a multi-stage build optimized for production deployment.
+
+## Database Migrations
+
+The project uses golang-migrate/migrate/v4 for database schema management:
+
+### Migration System
+- Migrations are stored in `internal/sqlbackend/migrations/`
+- Migration files follow the naming pattern: `NNNNNN_description.up.sql`
+- Only up migrations are used (no down migrations)
+- Migrations are embedded in the binary using `go:embed`
+- All pending migrations are automatically applied when the database is opened
+
+### Adding New Migrations
+1. Create a new file in `internal/sqlbackend/migrations/`
+2. Use the next sequential number (e.g., `000002_add_index.up.sql`)
+3. Write your SQL schema changes
+4. Rebuild and restart the service
+
+### Current Migrations
+- `000001_init_schema.up.sql` - Initial keyvalue table creation
