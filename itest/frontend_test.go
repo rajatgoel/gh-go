@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/test/bufconn"
 
+	"github.com/rajatgoel/gh-go/internal/config"
 	"github.com/rajatgoel/gh-go/internal/frontend"
 	"github.com/rajatgoel/gh-go/internal/sqlbackend"
 	frontendpb "github.com/rajatgoel/gh-go/proto/frontend/v1"
@@ -34,7 +35,13 @@ func setupTestServer(t *testing.T, backend sqlbackend.Backend) frontendpb.Fronte
 	// Create in-memory gRPC server
 	lis := bufconn.Listen(1024 * 1024)
 
-	s, err := frontend.NewServer(t.Context(), frontend.DefaultConfig(), backend)
+	// Create test config with default values
+	cfg := &config.Config{
+		ServiceName: "gh-go-frontend-test",
+		Environment: "test",
+		Port:        5051,
+	}
+	s, err := frontend.NewServer(t.Context(), cfg, backend)
 	require.NoError(t, err)
 	go func() {
 		if err := s.Serve(lis); err != nil {
