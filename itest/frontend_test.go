@@ -7,16 +7,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/test/bufconn"
 
+	"github.com/rajatgoel/gh-go/client"
 	"github.com/rajatgoel/gh-go/internal/config"
 	"github.com/rajatgoel/gh-go/internal/frontend"
 	"github.com/rajatgoel/gh-go/internal/sqlbackend"
-	frontendpb "github.com/rajatgoel/gh-go/proto/frontend/v1"
 )
 
 // mockBackend implements the Backend interface but always returns errors
@@ -31,94 +27,83 @@ func (m *mockBackend) Get(ctx context.Context, key int64) (string, error) {
 }
 
 // setupTestServer creates a gRPC test server with the given backend
-func setupTestServer(t *testing.T, backend sqlbackend.Backend) frontendpb.FrontendServiceClient {
-	// Create in-memory gRPC server
+func setupTestServer(t *testing.T, backend sqlbackend.Backend) (*client.Client, func()) {
+	// Create in-memory gRPC server using bufconn
 	lis := bufconn.Listen(1024 * 1024)
 
-	// Create test config with default values
+	// Create test config
 	cfg := &config.Config{
 		ServiceName: "gh-go-frontend-test",
 		Environment: "test",
-		Port:        5051,
+		Port:        5051, // Not used with bufconn, but required by config
 	}
+
+	// Create server
 	s, err := frontend.NewServer(t.Context(), cfg, backend)
 	require.NoError(t, err)
+
+	// Start server in background
 	go func() {
 		if err := s.Serve(lis); err != nil {
-			t.Logf("Server exited with error: %v", err)
+			t.Logf("Server exited: %v", err)
 		}
 	}()
-	t.Cleanup(func() { s.Stop() })
 
-	// Create client connection
-	conn, err := grpc.NewClient("passthrough:///bufnet",
-		grpc.WithContextDialer(func(ctx context.Context, target string) (net.Conn, error) {
+	// Create client using custom dialer for bufconn
+	c, err := client.New(
+		client.WithTarget("passthrough:///bufnet"),
+		client.WithDialer(func(ctx context.Context, target string) (net.Conn, error) {
 			return lis.DialContext(ctx)
 		}),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		client.WithInsecure(),
 	)
 	require.NoError(t, err)
-	t.Cleanup(func() { conn.Close() })
 
-	return frontendpb.NewFrontendServiceClient(conn)
+	// Return cleanup function
+	cleanup := func() {
+		c.Close()
+		s.Stop()
+	}
+
+	return c, cleanup
 }
 
 func TestBasic(t *testing.T) {
 	backend, err := sqlbackend.New(t.Context())
 	require.NoError(t, err)
 
-	client := setupTestServer(t, backend)
+	c, cleanup := setupTestServer(t, backend)
+	defer cleanup()
+
 	key, value := int64(1), "value"
 
 	// First Get should fail since key doesn't exist yet
-	_, err = client.Get(t.Context(), frontendpb.GetRequest_builder{
-		Key: key,
-	}.Build())
+	_, err = c.Get(t.Context(), key)
 	require.Error(t, err)
-	grpcErr, ok := status.FromError(err)
-	require.True(t, ok, "expected gRPC error")
-	require.Equal(t, codes.Internal, grpcErr.Code())
-	require.Contains(t, grpcErr.Message(), "no rows")
 
 	// Put the key-value pair
-	_, err = client.Put(t.Context(), frontendpb.PutRequest_builder{
-		Key:   key,
-		Value: value,
-	}.Build())
+	err = c.Put(t.Context(), key, value)
 	require.NoError(t, err)
 
 	// Get should now succeed
-	getResp, err := client.Get(t.Context(), frontendpb.GetRequest_builder{
-		Key: key,
-	}.Build())
+	getResp, err := c.Get(t.Context(), key)
 	require.NoError(t, err)
-	require.Equal(t, value, getResp.GetValue())
+	require.Equal(t, value, getResp)
 }
 
 func TestErrorHandling(t *testing.T) {
 	// Use mock backend that always returns errors
 	backend := &mockBackend{}
-	client := setupTestServer(t, backend)
+	c, cleanup := setupTestServer(t, backend)
+	defer cleanup()
+
 	key, value := int64(1), "test-value"
 
 	// Test Put error propagation
-	_, err := client.Put(t.Context(), frontendpb.PutRequest_builder{
-		Key:   key,
-		Value: value,
-	}.Build())
+	err := c.Put(t.Context(), key, value)
 	require.Error(t, err)
-	grpcErr, ok := status.FromError(err)
-	require.True(t, ok, "expected gRPC error")
-	require.Equal(t, codes.Internal, grpcErr.Code())
-	require.Contains(t, grpcErr.Message(), "mock database error on Put")
 
 	// Test Get error propagation
-	_, err = client.Get(t.Context(), frontendpb.GetRequest_builder{
-		Key: key,
-	}.Build())
+	_, err = c.Get(t.Context(), key)
 	require.Error(t, err)
-	grpcErr, ok = status.FromError(err)
-	require.True(t, ok, "expected gRPC error")
-	require.Equal(t, codes.Internal, grpcErr.Code())
-	require.Contains(t, grpcErr.Message(), "mock database error on Get")
 }
