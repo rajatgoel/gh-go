@@ -81,7 +81,6 @@ Current tools:
 - `buf` - Protocol Buffer tooling
 - `golangci-lint` - Go linting
 - `sqlc` - SQL code generation
-- `deadcode` - Dead code detection
 - `goimports` - Import formatting and organization
 - `govulncheck` - Vulnerability scanning
 - `staticcheck` - Static analysis
@@ -112,7 +111,20 @@ gh-go is a key-value store service with a gRPC API. It follows a clean architect
 4. **Entry Point** (`cmd/frontend/main.go`)
    - Application bootstrap
    - Sets up native gRPC server with TCP listener
-   - Configures health checks and gRPC reflection services
+   - Integrates OpenTelemetry instrumentation by default
+   - Implements graceful shutdown with signal handling
+   - Uses errgroup for coordinating goroutines
+
+5. **Configuration** (`internal/config/config.go`)
+   - Environment-based configuration using envconfig
+   - Supports .env files via godotenv
+   - Configurable service name, environment, and port
+
+6. **Client Library** (`client/client.go`)
+   - Type-safe gRPC client for the frontend service
+   - Provides functional options pattern for configuration (WithTarget, WithDialer, WithInsecure)
+   - Includes OpenTelemetry instrumentation for client-side tracing
+   - Used in integration tests with custom dialers for in-memory testing
 
 ### Data Flow
 
@@ -143,8 +155,12 @@ The project relies on generated code:
 
 1. **Protocol Buffers**: API definitions compiled to Go code using the opaque API
    - Generates both client and server interfaces for gRPC
-   - Uses builder pattern for message construction (e.g., `PutRequest_builder{}.Build()`)
+   - Uses builder pattern for message construction (e.g., `GetResponse_builder{Value: value}.Build()`)
+   - Configuration in `buf.gen.yaml` with paths=source_relative and default_api_level=API_OPAQUE
 2. **SQL**: Queries generated from SQL files using sqlc
+   - Configuration in `internal/sqlbackend/sqlc.yaml`
+   - Generates type-safe Go code from SQL queries and schema
+   - Uses SQLite engine with embedded schema
 
 Always regenerate code after changes to proto files or SQL files:
 ```bash
