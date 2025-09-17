@@ -26,6 +26,10 @@ func (m *mockBackend) Get(ctx context.Context, key int64) (string, error) {
 	return "", errors.New("mock database error on Get")
 }
 
+func (m *mockBackend) Close(context.Context) error {
+	return nil
+}
+
 // setupTestServer creates a gRPC test server with the given backend
 func setupTestServer(t *testing.T, backend sqlbackend.Backend) (*client.Client, func()) {
 	// Create in-memory gRPC server using bufconn
@@ -63,6 +67,7 @@ func setupTestServer(t *testing.T, backend sqlbackend.Backend) (*client.Client, 
 	cleanup := func() {
 		c.Close()
 		s.Stop()
+		require.NoError(t, backend.Close(t.Context()))
 	}
 
 	return c, cleanup

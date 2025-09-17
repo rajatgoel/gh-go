@@ -99,4 +99,8 @@ func main() {
 	// Wait for server to stop
 	<-shutdownCtx.Done()
 	slog.Info("gRPC server stopped")
+
+	if err := backend.Close(context.Background()); err != nil {
+		slog.Error("failed to close backend", "error", err)
+	}
 }
