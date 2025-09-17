@@ -12,10 +12,12 @@ import (
 type Backend interface {
 	Put(ctx context.Context, key int64, value string) error
 	Get(ctx context.Context, key int64) (string, error)
+	Close(ctx context.Context) error
 }
 
 type sqliteBackend struct {
-	q *sqlgen.Queries
+	db *sql.DB
+	q  *sqlgen.Queries
 }
 
 func New(ctx context.Context) (Backend, error) {
@@ -29,7 +31,10 @@ func New(ctx context.Context) (Backend, error) {
 		return nil, err
 	}
 
-	return &sqliteBackend{q: sqlgen.New(db)}, nil
+	return &sqliteBackend{
+		db: db,
+		q:  sqlgen.New(db),
+	}, nil
 }
 
 func (s *sqliteBackend) Put(ctx context.Context, key int64, value string) error {
@@ -46,4 +51,8 @@ func (s *sqliteBackend) Get(ctx context.Context, key int64) (string, error) {
 		return "", err
 	}
 	return get.Value, nil
+}
+
+func (s *sqliteBackend) Close(context.Context) error {
+	return s.db.Close()
 }
