@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/sqlite3"
+	"github.com/golang-migrate/migrate/v4/database/sqlite"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 )
 
@@ -22,7 +22,7 @@ func runMigrations(db *sql.DB) error {
 	}
 
 	// Create the database driver
-	dbDriver, err := sqlite3.WithInstance(db, &sqlite3.Config{
+	dbDriver, err := sqlite.WithInstance(db, &sqlite.Config{
 		NoTxWrap: true,
 	})
 	if err != nil {
@@ -30,7 +30,7 @@ func runMigrations(db *sql.DB) error {
 	}
 
 	// Create the migrate instance
-	m, err := migrate.NewWithInstance("iofs", sourceDriver, "sqlite3", dbDriver)
+	m, err := migrate.NewWithInstance("iofs", sourceDriver, "sqlite", dbDriver)
 	if err != nil {
 		return fmt.Errorf("failed to create migrate instance: %w", err)
 	}
