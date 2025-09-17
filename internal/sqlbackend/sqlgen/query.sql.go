@@ -26,7 +26,8 @@ INSERT INTO keyvalue (
     key, value
 ) VALUES (
     ?, ?
-)
+) ON CONFLICT(key) DO UPDATE SET
+    value = excluded.value
 RETURNING "key", value
 `
 
