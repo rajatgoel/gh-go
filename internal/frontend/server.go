@@ -20,7 +20,6 @@ import (
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
 
 	"github.com/rajatgoel/gh-go/internal/sqlbackend"
 	frontendpb "github.com/rajatgoel/gh-go/proto/frontend/v1"
@@ -46,9 +45,6 @@ func NewServer(ctx context.Context, backend sqlbackend.Backend) (*grpc.Server, f
 		resource.WithProcessPID(),
 		resource.WithProcessExecutableName(),
 		resource.WithHost(),
-		resource.WithAttributes(
-			semconv.ServiceNameKey.String("gh-go-frontend"),
-		),
 	)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create resource: %w", err)
