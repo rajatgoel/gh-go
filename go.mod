@@ -1,6 +1,6 @@
 module github.com/rajatgoel/gh-go
 
-go 1.25.0
+go 1.25.1
 
 require (
 	github.com/earthboundkid/versioninfo/v2 v2.24.1
