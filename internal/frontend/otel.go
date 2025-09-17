@@ -15,8 +15,9 @@ import (
 	"github.com/rajatgoel/gh-go/internal/config"
 )
 
-// SetupOTEL initializes OpenTelemetry with the given configuration
-func SetupOTEL(ctx context.Context, cfg *config.Config) (func(), error) {
+// SetupOTEL initializes OpenTelemetry with the given configuration and returns a cleanup function
+// that should be invoked with a shutdown context to flush telemetry exporters.
+func SetupOTEL(ctx context.Context, cfg *config.Config) (func(context.Context), error) {
 	// Create resource with service information
 	res, err := resource.New(ctx,
 		resource.WithAttributes(
@@ -48,11 +49,11 @@ func SetupOTEL(ctx context.Context, cfg *config.Config) (func(), error) {
 	))
 
 	// Create cleanup function
-	cleanup := func() {
-		if err := traceProvider.Shutdown(ctx); err != nil {
+	cleanup := func(shutdownCtx context.Context) {
+		if err := traceProvider.Shutdown(shutdownCtx); err != nil {
 			slog.Error("failed to shutdown trace provider", "error", err)
 		}
-		if err := metricProvider.Shutdown(ctx); err != nil {
+		if err := metricProvider.Shutdown(shutdownCtx); err != nil {
 			slog.Error("failed to shutdown metric provider", "error", err)
 		}
 	}
