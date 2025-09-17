@@ -42,11 +42,13 @@ func loggingInterceptor(ctx context.Context, req interface{}, info *grpc.UnarySe
 	return resp, err
 }
 
-// NewServer creates a new gRPC server with health checks, reflection, and OpenTelemetry instrumentation
-func NewServer(ctx context.Context, cfg *config.Config, backend sqlbackend.Backend) (*grpc.Server, error) {
+// NewServer creates a new gRPC server with health checks, reflection, and OpenTelemetry instrumentation.
+// The returned cleanup function must be called during shutdown to flush telemetry exporters.
+func NewServer(ctx context.Context, cfg *config.Config, backend sqlbackend.Backend) (*grpc.Server, func(context.Context), error) {
 	// Setup OpenTelemetry with default configuration
-	if _, err := SetupOTEL(ctx, cfg); err != nil {
-		return nil, fmt.Errorf("failed to setup OpenTelemetry: %w", err)
+	otelCleanup, err := SetupOTEL(ctx, cfg)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to setup OpenTelemetry: %w", err)
 	}
 
 	// Create gRPC server with OTEL stats handler and logging interceptor
@@ -70,5 +72,5 @@ func NewServer(ctx context.Context, cfg *config.Config, backend sqlbackend.Backe
 	// Register reflection service
 	reflection.Register(server)
 
-	return server, nil
+	return server, otelCleanup, nil
 }

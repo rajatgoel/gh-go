@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/test/bufconn"
@@ -39,7 +40,7 @@ func setupTestServer(t *testing.T, backend sqlbackend.Backend) (*client.Client, 
 	}
 
 	// Create server
-	s, err := frontend.NewServer(t.Context(), cfg, backend)
+	s, otelCleanup, err := frontend.NewServer(t.Context(), cfg, backend)
 	require.NoError(t, err)
 
 	// Start server in background
@@ -55,7 +56,6 @@ func setupTestServer(t *testing.T, backend sqlbackend.Backend) (*client.Client, 
 		client.WithDialer(func(ctx context.Context, target string) (net.Conn, error) {
 			return lis.DialContext(ctx)
 		}),
-		client.WithInsecure(),
 	)
 	require.NoError(t, err)
 
@@ -63,6 +63,9 @@ func setupTestServer(t *testing.T, backend sqlbackend.Backend) (*client.Client, 
 	cleanup := func() {
 		c.Close()
 		s.Stop()
+		cleanupCtx, cleanupCancel := context.WithTimeout(context.Background(), time.Second)
+		defer cleanupCancel()
+		otelCleanup(cleanupCtx)
 	}
 
 	return c, cleanup
