@@ -40,7 +40,7 @@ func main() {
 	}
 
 	// Create gRPC server with OpenTelemetry instrumentation (enabled by default)
-	server, err := frontend.NewServer(ctx, cfg, backend)
+	server, otelCleanup, err := frontend.NewServer(ctx, cfg, backend)
 	if err != nil {
 		slog.Error("failed to create gRPC server", "error", err)
 		os.Exit(1)
@@ -92,12 +92,13 @@ func main() {
 
 	slog.Info("shutting down gRPC server...")
 
-	// Give outstanding RPCs a chance to complete
-	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 1*time.Second)
-	defer shutdownCancel()
+	if otelCleanup != nil {
+		// Flush telemetry with a fresh context so shutdown succeeds even if the main context was cancelled.
+		cleanupCtx, cleanupCancel := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cleanupCancel()
+		otelCleanup(cleanupCtx)
+	}
 
-	// Wait for server to stop
-	<-shutdownCtx.Done()
 	slog.Info("gRPC server stopped")
 
 	if err := backend.Close(context.Background()); err != nil {
