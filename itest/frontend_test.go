@@ -5,9 +5,10 @@ import (
 	"errors"
 	"net"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/test/bufconn"
 
 	"github.com/rajatgoel/gh-go/client"
@@ -68,10 +69,7 @@ func setupTestServer(t *testing.T, backend sqlbackend.Backend) (*client.Client, 
 		c.Close()
 		s.Stop()
 		require.NoError(t, backend.Close(t.Context()))
-    
-		cleanupCtx, cleanupCancel := context.WithTimeout(context.Background(), time.Second)
-		defer cleanupCancel()
-		otelCleanup(cleanupCtx)
+		otelCleanup()
 	}
 
 	return c, cleanup
@@ -100,6 +98,34 @@ func TestBasic(t *testing.T) {
 	require.Equal(t, value, getResp)
 }
 
+func TestKeyOverwrite(t *testing.T) {
+	backend, err := sqlbackend.New(t.Context())
+	require.NoError(t, err)
+
+	c, cleanup := setupTestServer(t, backend)
+	defer cleanup()
+
+	key := int64(42)
+
+	// Put initial value
+	err = c.Put(t.Context(), key, "first")
+	require.NoError(t, err)
+
+	// Verify initial value
+	getResp, err := c.Get(t.Context(), key)
+	require.NoError(t, err)
+	require.Equal(t, "first", getResp)
+
+	// Overwrite with new value (upsert behavior)
+	err = c.Put(t.Context(), key, "second")
+	require.NoError(t, err)
+
+	// Verify updated value
+	getResp, err = c.Get(t.Context(), key)
+	require.NoError(t, err)
+	require.Equal(t, "second", getResp)
+}
+
 func TestErrorHandling(t *testing.T) {
 	// Use mock backend that always returns errors
 	backend := &mockBackend{}
@@ -115,4 +141,32 @@ func TestErrorHandling(t *testing.T) {
 	// Test Get error propagation
 	_, err = c.Get(t.Context(), key)
 	require.Error(t, err)
+}
+
+func TestGetStatusCodes(t *testing.T) {
+	backend, err := sqlbackend.New(t.Context())
+	require.NoError(t, err)
+
+	c, cleanup := setupTestServer(t, backend)
+	defer cleanup()
+
+	// Test NotFound status code for non-existent key
+	_, err = c.Get(t.Context(), int64(999))
+	require.Error(t, err)
+
+	st, ok := status.FromError(err)
+	require.True(t, ok, "expected gRPC status error")
+	require.Equal(t, codes.NotFound, st.Code(), "expected NotFound status code")
+
+	// Test Internal status code for backend errors
+	mockBackend := &mockBackend{}
+	c2, cleanup2 := setupTestServer(t, mockBackend)
+	defer cleanup2()
+
+	_, err = c2.Get(t.Context(), int64(1))
+	require.Error(t, err)
+
+	st, ok = status.FromError(err)
+	require.True(t, ok, "expected gRPC status error")
+	require.Equal(t, codes.Internal, st.Code(), "expected Internal status code")
 }

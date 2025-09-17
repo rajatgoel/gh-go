@@ -3,6 +3,7 @@ package frontend
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	"github.com/earthboundkid/versioninfo/v2"
 	"go.opentelemetry.io/otel"
@@ -16,8 +17,8 @@ import (
 )
 
 // SetupOTEL initializes OpenTelemetry with the given configuration and returns a cleanup function
-// that should be invoked with a shutdown context to flush telemetry exporters.
-func SetupOTEL(ctx context.Context, cfg *config.Config) (func(context.Context), error) {
+// that handles shutdown automatically with proper timeout and error handling.
+func SetupOTEL(ctx context.Context, cfg *config.Config) (func(), error) {
 	// Create resource with service information
 	res, err := resource.New(ctx,
 		resource.WithAttributes(
@@ -48,8 +49,11 @@ func SetupOTEL(ctx context.Context, cfg *config.Config) (func(context.Context), 
 		propagation.Baggage{},
 	))
 
-	// Create cleanup function
-	cleanup := func(shutdownCtx context.Context) {
+	// Return cleanup function that handles context and timeout internally
+	cleanup := func() {
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+
 		if err := traceProvider.Shutdown(shutdownCtx); err != nil {
 			slog.Error("failed to shutdown trace provider", "error", err)
 		}

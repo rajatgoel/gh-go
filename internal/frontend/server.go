@@ -44,7 +44,7 @@ func loggingInterceptor(ctx context.Context, req interface{}, info *grpc.UnarySe
 
 // NewServer creates a new gRPC server with health checks, reflection, and OpenTelemetry instrumentation.
 // The returned cleanup function must be called during shutdown to flush telemetry exporters.
-func NewServer(ctx context.Context, cfg *config.Config, backend sqlbackend.Backend) (*grpc.Server, func(context.Context), error) {
+func NewServer(ctx context.Context, cfg *config.Config, backend sqlbackend.Backend) (*grpc.Server, func(), error) {
 	// Setup OpenTelemetry with default configuration
 	otelCleanup, err := SetupOTEL(ctx, cfg)
 	if err != nil {

@@ -9,7 +9,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/earthboundkid/versioninfo/v2"
 	"golang.org/x/sync/errgroup"
@@ -60,11 +59,7 @@ func main() {
 	// Start server in a goroutine
 	g.Go(func() error {
 		slog.Info("starting gRPC server", "port", cfg.Port)
-		if err := server.Serve(lis); err != nil {
-			slog.Error("server error", "error", err)
-			return err
-		}
-		return nil
+		return server.Serve(lis)
 	})
 
 	// Start signal handler in a separate goroutine
@@ -92,12 +87,7 @@ func main() {
 
 	slog.Info("shutting down gRPC server...")
 
-	if otelCleanup != nil {
-		// Flush telemetry with a fresh context so shutdown succeeds even if the main context was cancelled.
-		cleanupCtx, cleanupCancel := context.WithTimeout(context.Background(), 1*time.Second)
-		defer cleanupCancel()
-		otelCleanup(cleanupCtx)
-	}
+	otelCleanup()
 
 	slog.Info("gRPC server stopped")
 
