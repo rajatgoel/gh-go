@@ -1,3 +1,10 @@
+// Package client provides a type-safe interface to the frontend service.
+//
+// By default the client connects using insecure transport credentials which is
+// convenient for local development and tests. Applications that require
+// transport security should provide their own credentials using
+// WithTransportCredentials. For explicit insecure mode, WithInsecure is still
+// available.
 package client
 
 import (
@@ -7,6 +14,7 @@ import (
 
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 
 	frontendpb "github.com/rajatgoel/gh-go/proto/frontend/v1"
@@ -21,9 +29,9 @@ type Client struct {
 type Option func(*clientConfig)
 
 type clientConfig struct {
-	target   string
-	dialer   func(context.Context, string) (net.Conn, error)
-	insecure bool
+	target string
+	dialer func(context.Context, string) (net.Conn, error)
+	creds  credentials.TransportCredentials
 }
 
 // WithTarget sets the gRPC target
@@ -40,10 +48,18 @@ func WithDialer(dialer func(context.Context, string) (net.Conn, error)) Option {
 	}
 }
 
+// WithTransportCredentials sets the transport credentials used for the gRPC
+// connection.
+func WithTransportCredentials(creds credentials.TransportCredentials) Option {
+	return func(c *clientConfig) {
+		c.creds = creds
+	}
+}
+
 // WithInsecure disables transport security (useful for testing)
 func WithInsecure() Option {
 	return func(c *clientConfig) {
-		c.insecure = true
+		c.creds = insecure.NewCredentials()
 	}
 }
 
@@ -73,9 +89,13 @@ func New(opts ...Option) (*Client, error) {
 	}
 
 	// Set transport credentials based on configuration
-	if config.insecure {
-		dialOpts = append(dialOpts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	// Use provided credentials or default to insecure for backwards
+	// compatibility.
+	creds := config.creds
+	if creds == nil {
+		creds = insecure.NewCredentials()
 	}
+	dialOpts = append(dialOpts, grpc.WithTransportCredentials(creds))
 
 	// Create gRPC connection
 	conn, err := grpc.NewClient(config.target, dialOpts...)

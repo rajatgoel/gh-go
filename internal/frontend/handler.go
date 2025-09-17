@@ -2,6 +2,8 @@ package frontend
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -37,6 +39,9 @@ func (h *handler) Get(
 ) (*frontendpb.GetResponse, error) {
 	value, err := h.backend.Get(ctx, req.GetKey())
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, status.Error(codes.NotFound, err.Error())
+		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 

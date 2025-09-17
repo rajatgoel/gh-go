@@ -56,7 +56,6 @@ func setupTestServer(t *testing.T, backend sqlbackend.Backend) (*client.Client, 
 		client.WithDialer(func(ctx context.Context, target string) (net.Conn, error) {
 			return lis.DialContext(ctx)
 		}),
-		client.WithInsecure(),
 	)
 	require.NoError(t, err)
 
