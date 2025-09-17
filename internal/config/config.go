@@ -9,9 +9,7 @@ import (
 
 // Config holds application configuration
 type Config struct {
-	ServiceName string `envconfig:"SERVICE_NAME" default:"gh-go-frontend"`
-	Environment string `envconfig:"ENVIRONMENT" default:"development"`
-	Port        int    `envconfig:"PORT" default:"5051"`
+	Port int `envconfig:"PORT" default:"5051"`
 }
 
 // Load loads configuration from environment variables and .env file

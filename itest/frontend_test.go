@@ -12,7 +12,6 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 
 	"github.com/rajatgoel/gh-go/client"
-	"github.com/rajatgoel/gh-go/internal/config"
 	"github.com/rajatgoel/gh-go/internal/frontend"
 	"github.com/rajatgoel/gh-go/internal/sqlbackend"
 )
@@ -37,15 +36,8 @@ func setupTestServer(t *testing.T, backend sqlbackend.Backend) (*client.Client, 
 	// Create in-memory gRPC server using bufconn
 	lis := bufconn.Listen(1024 * 1024)
 
-	// Create test config
-	cfg := &config.Config{
-		ServiceName: "gh-go-frontend-test",
-		Environment: "test",
-		Port:        5051, // Not used with bufconn, but required by config
-	}
-
 	// Create server
-	s, otelCleanup, err := frontend.NewServer(t.Context(), cfg, backend)
+	s, otelCleanup, err := frontend.NewServer(t.Context(), backend)
 	require.NoError(t, err)
 
 	// Start server in background
