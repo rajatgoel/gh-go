@@ -72,8 +72,12 @@ func NewServer(ctx context.Context, backend sqlbackend.Backend) (*grpc.Server, f
 
 	// Create cleanup function
 	cleanup := func() {
-		tracerProvider.Shutdown(context.Background())
-		meterProvider.Shutdown(context.Background())
+		if err := tracerProvider.Shutdown(context.Background()); err != nil {
+			slog.Error("failed to shutdown trace provider", "error", err)
+		}
+		if err := meterProvider.Shutdown(context.Background()); err != nil {
+			slog.Error("failed to shutdown metric provider", "error", err)
+		}
 	}
 
 	// Create gRPC server with middleware chain
