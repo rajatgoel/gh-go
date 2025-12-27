@@ -11,9 +11,9 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/test/bufconn"
 
-	"github.com/rajatgoel/gh-go/client"
-	"github.com/rajatgoel/gh-go/internal/frontend"
-	"github.com/rajatgoel/gh-go/internal/sqlbackend"
+	"github.com/dynoinc/gh-go/client"
+	"github.com/dynoinc/gh-go/internal/frontend"
+	"github.com/dynoinc/gh-go/internal/sqlbackend"
 )
 
 // mockBackend implements the Backend interface but always returns errors
@@ -36,8 +36,8 @@ func setupTestServer(t *testing.T, backend sqlbackend.Backend) (*client.Client, 
 	// Create in-memory gRPC server using bufconn
 	lis := bufconn.Listen(1024 * 1024)
 
-	// Create server
-	s, otelCleanup, err := frontend.NewServer(t.Context(), backend)
+	// Create server with noop telemetry to avoid OTLP connection timeouts
+	s, otelCleanup, err := frontend.NewServer(t.Context(), backend, frontend.WithNoopTelemetry())
 	require.NoError(t, err)
 
 	// Start server in background

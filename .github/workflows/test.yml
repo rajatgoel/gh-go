@@ -32,3 +32,11 @@ jobs:
 
       - name: Run tests
         run: just test
+
+      - name: Check for uncommitted changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git status
+            git diff
+            exit 1
+          fi

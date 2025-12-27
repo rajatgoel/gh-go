@@ -8,8 +8,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/rajatgoel/gh-go/internal/sqlbackend"
-	frontendpb "github.com/rajatgoel/gh-go/proto/frontend/v1"
+	"github.com/dynoinc/gh-go/internal/sqlbackend"
+	frontendpb "github.com/dynoinc/gh-go/proto/frontend/v1"
 )
 
 type handler struct {

@@ -2,7 +2,7 @@ edition = "2023";
 
 package frontend.v1;
 
-option go_package = "github.com/rajatgoel/gh-go/proto/frontend/v1";
+option go_package = "github.com/dynoinc/gh-go/proto/frontend/v1";
 
 message PutRequest {
         int64 key = 1 [features.field_presence = IMPLICIT];

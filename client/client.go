@@ -17,7 +17,7 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 
-	frontendpb "github.com/rajatgoel/gh-go/proto/frontend/v1"
+	frontendpb "github.com/dynoinc/gh-go/proto/frontend/v1"
 )
 
 // Client provides a type-safe interface to the frontend service

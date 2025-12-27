@@ -13,9 +13,9 @@ import (
 	"github.com/earthboundkid/versioninfo/v2"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/rajatgoel/gh-go/internal/config"
-	"github.com/rajatgoel/gh-go/internal/frontend"
-	"github.com/rajatgoel/gh-go/internal/sqlbackend"
+	"github.com/dynoinc/gh-go/internal/config"
+	"github.com/dynoinc/gh-go/internal/frontend"
+	"github.com/dynoinc/gh-go/internal/sqlbackend"
 )
 
 func main() {

@@ -28,7 +28,7 @@ go tool buf generate proto
 find . -name sqlc.yaml | xargs go tool sqlc generate -f
 
 # Format imports (groups: std, current package, 3rd-party)
-go tool goimports -local github.com/rajatgoel/gh-go -w .
+go tool goimports -local github.com/dynoinc/gh-go -w .
 
 # Update dependencies
 go mod tidy

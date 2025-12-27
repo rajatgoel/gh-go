@@ -266,7 +266,7 @@ const file_frontend_v1_service_proto_rawDesc = "" +
 	"\x05value\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05value2\x85\x01\n" +
 	"\x0fFrontendService\x128\n" +
 	"\x03Put\x12\x17.frontend.v1.PutRequest\x1a\x18.frontend.v1.PutResponse\x128\n" +
-	"\x03Get\x12\x17.frontend.v1.GetRequest\x1a\x18.frontend.v1.GetResponseB.Z,github.com/rajatgoel/gh-go/proto/frontend/v1b\beditionsp\xe8\a"
+	"\x03Get\x12\x17.frontend.v1.GetRequest\x1a\x18.frontend.v1.GetResponseB,Z*github.com/dynoinc/gh-go/proto/frontend/v1b\beditionsp\xe8\a"
 
 var file_frontend_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_frontend_v1_service_proto_goTypes = []any{

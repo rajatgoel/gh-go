@@ -6,7 +6,7 @@ import (
 
 	_ "modernc.org/sqlite"
 
-	"github.com/rajatgoel/gh-go/internal/sqlbackend/sqlgen"
+	"github.com/dynoinc/gh-go/internal/sqlbackend/sqlgen"
 )
 
 type Backend interface {
